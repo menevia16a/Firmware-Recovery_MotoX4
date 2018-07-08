@@ -1,0 +1,312 @@
+#!/bin/bash
+# Authors: Veil
+
+function asciiLogo
+{
+  # Don't change these values please.
+  version="1.0"
+  twrpStage=false
+  transferFilesStage=false
+  flashStage=true
+  scriptIsCompleted=false
+
+  # Change these values to work for you.
+  downloadLocation="/sdcard/Download"
+  twrpImg="/root/Desktop/Firmware-Recovery_MotoX4/Resources/twrp-3.2.1-1-payton.img"
+  twrpZipName="twrp-installer-payton-3.2.1-1.zip"
+  magiskZipName="Magisk-v16.6.zip"
+  twrpZipPath="/root/Desktop/Firmware-Recovery_MotoX4/Resources/twrp-installer-payton-3.2.1-1.zip"
+  magiskZipPath="/root/Desktop/Firmware-Recovery_MotoX4/Resources/Magisk-v16.6.zip"
+  firmwarePath="/root/Desktop/Firmware-Recovery_MotoX4/Resources/PAYTON_FI_OPW28.46-13_subsidy-DEFAULT_regulatory-DEFAULT_CFC.xml"
+  useTwrpMagisk=true
+
+  # Please do not edit below, the rest is the script.
+  clear
+  GREEN='\e[32m'
+  RED='\e[31m'
+  WHITE='\e[37m'
+  YELLOW='\e[33m'
+  NC='\e[0m'
+
+  echo ""
+  echo -e "${GREEN}        Veil's Moto x4"
+  echo -e "${GREEN}          Project Fi"
+  echo -e "${GREEN}           Recovery"
+  echo ""
+  echo -e "${RED}        Designed for firmware OPW28.1"
+  echo ""
+  echo -e "${WHITE}        Version: $version"
+  echo ""
+}
+
+function bootTwrp ()
+{
+  twrpStage=false
+
+  echo -e "\n${GREEN} bootTwrp() has been called successfully!\n"
+  echo -e "\n${RED} Booting up the TWRP img...\n"
+  fastboot boot $twrpImg
+  echo -e "\n${GREEN} Please continue once TWRP has loaded.\n"
+
+  select qConfirm in "Confirm"; do
+    case $qConfirm in
+      Confirm ) findDevices;;
+    esac
+  done
+}
+
+function rebootSystem ()
+{
+  echo -e "\n${GREEN} rebootSystem() has been called successfully!\n"
+
+  if $twrpStage && $transferFilesStage; then
+    echo -e "\n${RED} Rebooting device into System using Fastboot...\n"
+    fastboot reboot
+  elif $twrpStage; then
+    echo -e "\n${RED} Rebooting device into System using ADB...\n"
+    adb reboot
+  elif $scriptIsCompleted; then
+    adb reboot
+    scriptIsCompleted
+  else
+    echo -e "\n${RED} Rebooting device into System using Fastboot...\n"
+    fastboot reboot
+  fi
+
+  echo -e "\n${GREEN} Please continue once your System has loaded.\n"
+
+  select qConfirm in "Confirm"; do
+    case $qConfirm in
+      Confirm ) findDevices;;
+    esac
+  done
+}
+
+function fastbootFlashing ()
+{
+  transferFilesStage=true
+  flashStage=false
+
+  echo -e "\n${GREEN} fastbootFlashing() has been called successfully!\n"
+  echo -e "\n${WHITE} Flashing gpt.bin to partition...\n"
+  fastboot flash partition $firmwarePath/gpt.bin
+  echo -e "\n${WHITE} Flashing bootloader.img to bootloader...\n"
+  fastboot flash bootloader $firmwarePath/bootloader.img
+  echo -e "\n${WHITE} Flashing NON-HLOS.bin to modem...\n"
+  fastboot flash modem $firmwarePath/NON-HLOS.bin
+  echo -e "\n${WHITE} Flashing fsg.mbn to fsg...\n"
+  fastboot flash fsg $firmwarePath/fsg.mbn
+  echo -e "\n${RED} Erasing partition modemst1...\n"
+  fastboot erase modemst1
+  echo -e "\n${RED} Erasing partition modemst2...\n"
+  fastboot erase modemst2
+  echo -e "\n${WHITE} Flashing BTFM.bin to bluetooth...\n"
+  fastboot flash bluetooth $firmwarePath/BTFM.bin
+  echo -e "\n${WHITE} Flashing dspso.bin to dsp...\n"
+  fastboot flash dsp $firmwarePath/dspso.bin
+  echo -e "\n${WHITE} Flashing logo.bin to logo...\n"
+  fastboot flash logo $firmwarePath/logo.bin
+  echo -e "\n${WHITE} Flashing boot.img to boot...\n"
+  fastboot flash boot $firmwarePath/boot.img
+  echo -e "\n${WHITE} Flashing system.img_sparsechunk.0 to system...\n"
+  fastboot flash system $firmwarePath/system.img_sparsechunk.0
+  echo -e "\n${WHITE} Flashing system.img_sparsechunk.1 to system...\n"
+  fastboot flash system $firmwarePath/system.img_sparsechunk.1
+  echo -e "\n${WHITE} Flashing system.img_sparsechunk.2 to system...\n"
+  fastboot flash system $firmwarePath/system.img_sparsechunk.2
+  echo -e "\n${WHITE} Flashing system.img_sparsechunk.3 to system...\n"
+  fastboot flash system $firmwarePath/system.img_sparsechunk.3
+  echo -e "\n${WHITE} Flashing system.img_sparsechunk.4 to system...\n"
+  fastboot flash system $firmwarePath/system.img_sparsechunk.4
+  echo -e "\n${WHITE} Flashing system.img_sparsechunk.5 to system...\n"
+  fastboot flash system $firmwarePath/system.img_sparsechunk.5
+  echo -e "\n${WHITE} Flashing system.img_sparsechunk.6 to system...\n"
+  fastboot flash system $firmwarePath/system.img_sparsechunk.6
+  echo -e "\n${WHITE} Flashing system_other.img to system_b...\n"
+  fastboot flash system_b $firmwarePath/system_other.img
+  echo -e "\n${WHITE} Flashing oem.img to oem...\n"
+  fastboot flash oem $firmwarePath/oem.img
+  echo -e "\n${RED} Erasing partition carrier...\n"
+  fastboot erase carrier
+  echo -e "\n${RED} Erasing partition userdata...\n"
+  fastboot erase userdata
+  echo -e "\n${RED} Erasing partition ddr...\n"
+  fastboot erase ddr
+  echo -e "\n${WHITE} Performing fastboot oem operation fb_mode_clear...\n"
+  fastboot oem fb_mode_clear
+  echo -e "\n${GREEN} The fastboot flashing process has completed!\n"
+
+  if $useTwrpMagisk; then
+    twrpStage=true
+
+    rebootSystem
+  else
+    rebootSystem
+  fi
+}
+
+function fastbootFlashingConf ()
+{
+  echo -e "\n${GREEN} fastbootFlashingConf() has been called successfully!\n"
+  echo -e "\n${RED} Ready to flash firmware files?\n"
+
+  select qYn in "Yes" "No"; do
+    case $qYn in
+      Yes ) fastbootFlashing;;
+      No ) fastbootDevices;;
+    esac
+  done
+}
+
+function fastbootDevices ()
+{
+  echo -e "\n${GREEN} fastbootDevices() has been called successfully!\n"
+  fastboot devices
+
+  if $twrpStage; then
+    echo -e "\n${GREEN} Did you find your device?\n"
+
+    select qYn in "Yes" "No"; do
+      case $qYn in
+        Yes ) bootTwrp;;
+        No ) fastbootDevices;;
+      esac
+    done
+  else
+    if $flashStage; then
+      echo -e "\n${GREEN} Did you find your device?\n"
+
+      select qYn in "Yes" "No"; do
+        case $qYn in
+          Yes ) fastbootFlashingConf;;
+          No ) fastbootDevices;;
+        esac
+      done
+    else
+      fastbootDevices
+    fi
+  fi
+}
+
+function rebootBootloader ()
+{
+  echo -e "\n${GREEN} rebootBootloader() has been called successfully!\n"
+  echo -e "\n${RED} Rebooting the device into its bootloader...\n"
+  adb reboot bootloader
+
+  echo -e "\n${GREEN} Please continue once your bootloader has loaded.\n"
+
+  select qConfirm in "Confirm"; do
+    case $qConfirm in
+      Confirm ) fastbootDevices;;
+    esac
+  done
+}
+
+function rebootRecovery ()
+{
+  echo -e "\n${GREEN} rebootRecovery() has been called successfully!\n"
+
+  if $twrpStage; then
+    fastboot reboot bootloader
+    echo -e "\n${GREEN} Please continue once your bootloader has loaded.\n"
+
+    select qConfirm in "Confirm"; do
+      case $qConfirm in
+        Confirm ) fastbootDevices;;
+      esac
+    done
+  else
+    scriptIsCompleted=true
+
+    adb reboot recovery
+  fi
+
+  echo -e "\n${GREEN} Please continue once your recovery has loaded.\n"
+
+  select qConfirm in "Confirm"; do
+    case $qConfirm in
+      Confirm ) findDevices;;
+    esac
+  done
+}
+
+function transferFiles ()
+{
+  transferFilesStage=false
+
+  if $useTwrpMagisk; then
+    echo -e "\n${GREEN} transferFiles() has been called successfully!\n"
+    echo -e "\n${GREEN} Transferring TWRP Zip installer...\n"
+    adb push $twrpZipPath $downloadLocation/$twrpZipName
+    echo -e "\n${GREEN} Transferring Magisk Zip installer...\n"
+    adb push $magiskZipPath $downloadLocation/$magiskZipName
+  else
+    echo -e "\n${GREEN} Skipping transferring TWRP and Magisk files...\n"
+  fi
+
+  echo -e "\n${GREEN} File transferring process has completed!\n${RED} Continuing will reboot your device into the bootloader!\n"
+
+  select qConfirm in "Confirm"; do
+    case $qConfirm in
+      Confirm ) rebootBootloader;;
+    esac
+  done
+}
+
+function scriptCompleted ()
+{
+  echo -e "\n${GREEN} scriptCompleted() has been called successfully!\n"
+  echo -e "\n${GREEN} Successfully completed the Firmware-Recovery script!\n Enjoy!\n"
+  exit
+}
+
+function findDevices ()
+{
+  echo -e "\n${GREEN} findDevices() has been called successfully!\n"
+  adb devices
+  echo -e "\n${GREEN} Did you find your device?\n"
+
+  if $transferFilesStage; then
+    echo -e "\n${RED} Warning:${YELLOW} Accepting will start transferring files to the connected device's Download folder!\n"
+
+    select qYn in "Yes" "No"; do
+      case $qYn in
+        Yes ) transferFiles;;
+        No ) findDevices;;
+      esac
+    done
+  elif $flashStage; then
+    echo -e "\n${RED} Warning:${YELLOW} Accepting will boot into your device's bootloader!\n"
+
+    select qYn in "Yes" "No"; do
+      case $qYn in
+        Yes ) rebootBootloader;;
+        No ) findDevices;;
+      esac
+    done
+  elif $scriptIsCompleted; then
+    rebootSystem
+  else
+    echo -e "\n${RED} Warning:${YELLOW} Accepting will reboot your device into its recovery!\n"
+    echo -e "\n${RED} Warning:${YELLOW} Please flash your TWRP and Magisk Zip files inside Downloads using the TWRP Manager install function before continuing!\n"
+
+    select qYn in "Yes" "No"; do
+      case $qYn in
+        Yes ) rebootRecovery;;
+        No ) findDevices;;
+      esac
+    done
+  fi
+}
+
+# main exec
+asciiLogo
+echo -e "\n${RED} Warning:${YELLOW} This will completely reset your device as if it's a new phone.\n Do you wish to continue?\n"
+
+select qYn in "Yes" "No"; do
+  case $qYn in
+    Yes ) findDevices;;
+    No ) exit;;
+  esac
+done
