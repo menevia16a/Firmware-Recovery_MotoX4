@@ -4,7 +4,7 @@
 function asciiLogo
 {
   # Don't change these values please.
-  version="1.0"
+  version="1.1"
   twrpStage=false
   transferFilesStage=false
   flashStage=true
@@ -67,7 +67,7 @@ function rebootSystem ()
     adb reboot
   elif $scriptIsCompleted; then
     adb reboot
-    scriptIsCompleted
+    scriptCompleted
   else
     echo -e "\n${RED} Rebooting device into System using Fastboot...\n"
     fastboot reboot
