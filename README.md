@@ -25,3 +25,5 @@ Nice colored bash script with helpful user prompts to walk you through the proce
 	    **1.1** Added a function to let you know when the script has completed.
 
 	    **2.0** Added the beginnings of a main menu, and updated to use latest resources.
+
+	    **2.1** Small critical bug fix.
