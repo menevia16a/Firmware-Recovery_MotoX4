@@ -17,7 +17,7 @@ function asciiLogo
   magiskZipName="Magisk-v17.2.zip"
   twrpZipPath="/root/Desktop/Firmware-Recovery_MotoX4/Resources/twrp-installer-payton-3.2.3-1.zip"
   magiskZipPath="/root/Desktop/Firmware-Recovery_MotoX4/Resources/Magisk-v17.2.zip"
-  firmwarePath="/root/Desktop/Firmware-Recovery_MotoX4/Resources/PAYTON_FI_8.1.0_OPW28.46-21-8_subsidy-DEFAULT_regulatory-DEFAULT_CFC.xml"
+  firmwarePath="/root/Desktop/Firmware-Recovery_MotoX4/Resources/PAYTON_FI_8.1.0_OPWS28.46-21-8_subsidy-DEFAULT_regulatory-DEFAULT_CFC.xml"
   useTwrpMagisk=true
 
   # Please do not edit below, the rest is the script.
