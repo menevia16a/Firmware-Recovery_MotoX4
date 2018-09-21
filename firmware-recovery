@@ -4,7 +4,7 @@
 function asciiLogo
 {
   # Don't change these values please.
-  version="1.1"
+  version="2.0"
   twrpStage=false
   transferFilesStage=false
   flashStage=true
@@ -12,12 +12,12 @@ function asciiLogo
 
   # Change these values to work for you.
   downloadLocation="/sdcard/Download"
-  twrpImg="/root/Desktop/Firmware-Recovery_MotoX4/Resources/twrp-3.2.1-1-payton.img"
-  twrpZipName="twrp-installer-payton-3.2.1-1.zip"
-  magiskZipName="Magisk-v16.6.zip"
-  twrpZipPath="/root/Desktop/Firmware-Recovery_MotoX4/Resources/twrp-installer-payton-3.2.1-1.zip"
-  magiskZipPath="/root/Desktop/Firmware-Recovery_MotoX4/Resources/Magisk-v16.6.zip"
-  firmwarePath="/root/Desktop/Firmware-Recovery_MotoX4/Resources/PAYTON_FI_OPW28.46-13_subsidy-DEFAULT_regulatory-DEFAULT_CFC.xml"
+  twrpImg="/root/Desktop/Firmware-Recovery_MotoX4/Resources/twrp-3.2.3-1-payton.img"
+  twrpZipName="twrp-installer-payton-3.2.3-1.zip"
+  magiskZipName="Magisk-v17.2.zip"
+  twrpZipPath="/root/Desktop/Firmware-Recovery_MotoX4/Resources/twrp-installer-payton-3.2.3-1.zip"
+  magiskZipPath="/root/Desktop/Firmware-Recovery_MotoX4/Resources/Magisk-v17.2.zip"
+  firmwarePath="/root/Desktop/Firmware-Recovery_MotoX4/Resources/PAYTON_FI__8.1.0_OPW28.46-21-8_subsidy-DEFAULT_regulatory-DEFAULT_CFC.xml"
   useTwrpMagisk=true
 
   # Please do not edit below, the rest is the script.
@@ -33,7 +33,7 @@ function asciiLogo
   echo -e "${GREEN}          Project Fi"
   echo -e "${GREEN}           Recovery"
   echo ""
-  echo -e "${RED}        Designed for firmware OPW28.1"
+  echo -e "${RED}        Designed for firmware OPW28.2"
   echo ""
   echo -e "${WHITE}        Version: $version"
   echo ""
@@ -43,7 +43,6 @@ function bootTwrp ()
 {
   twrpStage=false
 
-  echo -e "\n${GREEN} bootTwrp() has been called successfully!\n"
   echo -e "\n${RED} Booting up the TWRP img...\n"
   fastboot boot $twrpImg
   echo -e "\n${GREEN} Please continue once TWRP has loaded.\n"
@@ -57,8 +56,6 @@ function bootTwrp ()
 
 function rebootSystem ()
 {
-  echo -e "\n${GREEN} rebootSystem() has been called successfully!\n"
-
   if $twrpStage && $transferFilesStage; then
     echo -e "\n${RED} Rebooting device into System using Fastboot...\n"
     fastboot reboot
@@ -87,7 +84,6 @@ function fastbootFlashing ()
   transferFilesStage=true
   flashStage=false
 
-  echo -e "\n${GREEN} fastbootFlashing() has been called successfully!\n"
   echo -e "\n${WHITE} Flashing gpt.bin to partition...\n"
   fastboot flash partition $firmwarePath/gpt.bin
   echo -e "\n${WHITE} Flashing bootloader.img to bootloader...\n"
@@ -147,7 +143,6 @@ function fastbootFlashing ()
 
 function fastbootFlashingConf ()
 {
-  echo -e "\n${GREEN} fastbootFlashingConf() has been called successfully!\n"
   echo -e "\n${RED} Ready to flash firmware files?\n"
 
   select qYn in "Yes" "No"; do
@@ -160,7 +155,6 @@ function fastbootFlashingConf ()
 
 function fastbootDevices ()
 {
-  echo -e "\n${GREEN} fastbootDevices() has been called successfully!\n"
   fastboot devices
 
   if $twrpStage; then
@@ -190,7 +184,6 @@ function fastbootDevices ()
 
 function rebootBootloader ()
 {
-  echo -e "\n${GREEN} rebootBootloader() has been called successfully!\n"
   echo -e "\n${RED} Rebooting the device into its bootloader...\n"
   adb reboot bootloader
 
@@ -205,8 +198,6 @@ function rebootBootloader ()
 
 function rebootRecovery ()
 {
-  echo -e "\n${GREEN} rebootRecovery() has been called successfully!\n"
-
   if $twrpStage; then
     fastboot reboot bootloader
     echo -e "\n${GREEN} Please continue once your bootloader has loaded.\n"
@@ -236,7 +227,6 @@ function transferFiles ()
   transferFilesStage=false
 
   if $useTwrpMagisk; then
-    echo -e "\n${GREEN} transferFiles() has been called successfully!\n"
     echo -e "\n${GREEN} Transferring TWRP Zip installer...\n"
     adb push $twrpZipPath $downloadLocation/$twrpZipName
     echo -e "\n${GREEN} Transferring Magisk Zip installer...\n"
@@ -256,14 +246,12 @@ function transferFiles ()
 
 function scriptCompleted ()
 {
-  echo -e "\n${GREEN} scriptCompleted() has been called successfully!\n"
   echo -e "\n${GREEN} Successfully completed the Firmware-Recovery script!\n Enjoy!\n"
   exit
 }
 
 function findDevices ()
 {
-  echo -e "\n${GREEN} findDevices() has been called successfully!\n"
   adb devices
   echo -e "\n${GREEN} Did you find your device?\n"
 
@@ -300,13 +288,23 @@ function findDevices ()
   fi
 }
 
+function mainMenu ()
+{
+  select qMm in "Restore device & root with custom recovery" "Exit"; do
+    case $qMm in
+      'Restore device & root with custom recovery' ) findDevices;;
+      Exit ) exit;;
+    esac
+  done
+}
+
 # main exec
 asciiLogo
 echo -e "\n${RED} Warning:${YELLOW} This will completely reset your device as if it's a new phone.\n Do you wish to continue?\n"
 
 select qYn in "Yes" "No"; do
   case $qYn in
-    Yes ) findDevices;;
+    Yes ) mainMenu;;
     No ) exit;;
   esac
 done
