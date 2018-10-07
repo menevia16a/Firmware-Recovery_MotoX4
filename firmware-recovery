@@ -33,7 +33,7 @@ function asciiLogo
   echo -e "${GREEN}          Project Fi"
   echo -e "${GREEN}           Recovery"
   echo ""
-  echo -e "${RED}        Designed for firmware OPW28.2"
+  echo -e "${RED}        Designed for firmware OPWS28.3.2"
   echo ""
   echo -e "${WHITE}        Version: $version"
   echo ""
