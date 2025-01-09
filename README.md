@@ -2,6 +2,8 @@
 ## Firmware Recovery Tool
 ### Created by: Veil
 
+Note: This repository has been archived as of 1/9/2025 and will receive no further development.
+
 #### Contains working TWRP recovery and Magisk (root method) installers.
 #### Will be updated as much as possible with lastest firmware updates, and working TWRP/Magisk files.
 
